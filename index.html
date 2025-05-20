@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Family Tree Builder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="controls">
+    <button id="addPersonBtn">Add Person (A)</button>
+    <button id="connectBtn">Connect (C)</button>
+    <label>Color:
+      <input type="color" id="colorPicker" disabled>
+    </label>
+    <label>Size:
+      <input type="number" id="sizeInput" min="5" max="200" disabled>
+    </label>
+    <button id="applyBtn" disabled>Apply</button>
+    <button id="saveBtn">Save</button>
+    <input type="file" id="loadInput" accept=".json">
+  </div>
+  <svg id="svgArea"></svg>
+  <script src="script.js"></script>
+</body>
+</html>
