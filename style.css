@@ -1,6 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  overscroll-behavior: none;
 }
 
 #controls {
@@ -34,38 +35,32 @@ body {
 #svgArea {
   width: 100%;
   height: calc(100vh - 56px);
-  background: #fafafa;
+  background: #f0f0f0;
   touch-action: none;
   user-select: none;
 }
 
+/* Person node styling */
 circle.person {
   cursor: grab;
-  transition: stroke 0.2s ease;
+  transition: stroke-width 0.2s ease;
 }
 
 circle.person.selected {
   stroke: #e74c3c !important;
-  stroke-width: 3px;
+  stroke-width: 4px !important;
 }
 
-line.relation {
-  stroke: #555;
-  stroke-width: 2;
-  pointer-events: stroke;
-  cursor: pointer;
-}
-
-line.relation:hover {
-  stroke: #e74c3c;
-  stroke-width: 3;
-}
-
+/* Text styling */
 text {
   font-size: 12px;
   pointer-events: none;
-  fill: #333;
   user-select: none;
+}
+
+text.name {
+  font-weight: bold;
+  fill: #333;
 }
 
 text.dob {
@@ -73,11 +68,60 @@ text.dob {
   fill: #666;
 }
 
-#centerBtn {
-  margin-left: auto;
+/* Connector lines */
+line.relation {
+  stroke: #555;
+  stroke-width: 3;
+  stroke-linecap: round;
+  pointer-events: all;
+  cursor: pointer;
 }
 
-/* mobile adjustments */
+line.relation:hover {
+  stroke: #e74c3c;
+  stroke-width: 4;
+}
+
+/* Button styling */
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+#connectBtn.active {
+  background-color: #e74c3c;
+}
+
+#centerBtn {
+  background-color: #2ecc71;
+}
+
+#centerBtn:hover {
+  background-color: #27ae60;
+}
+
+#saveBtn {
+  background-color: #9b59b6;
+}
+
+#saveBtn:hover {
+  background-color: #8e44ad;
+}
+
+/* Mobile adjustments */
 @media (max-width: 600px) {
   #controls {
     flex-direction: column;
@@ -88,9 +132,31 @@ text.dob {
   #controls button {
     width: 100%;
     margin-bottom: 4px;
+    padding: 12px 8px; /* Larger touch targets */
+    font-size: 16px;
   }
   
-  #centerBtn {
-    margin-left: 0;
+  circle.person {
+    /* Create larger touch target while keeping visual size */
+    stroke-width: 4px;
+  }
+  
+  /* Improve font visibility on mobile */
+  text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  text.dob {
+    font-size: 12px;
+  }
+  
+  /* Make connection lines more visible on mobile */
+  line.relation {
+    stroke-width: 4px;
+  }
+  
+  line.relation:hover {
+    stroke-width: 6px;
   }
 }
