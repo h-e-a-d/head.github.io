@@ -10,17 +10,24 @@
   <div id="controls">
     <button id="addPersonBtn">Add Person (A)</button>
     <button id="connectBtn">Connect (C)</button>
-    <label>Color:
+    <label>
+      Color:
       <input type="color" id="colorPicker" disabled>
     </label>
-    <label>Size:
-      <input type="number" id="sizeInput" min="5" max="200" disabled>
+    <label>
+      Size:
+      <input type="number" id="sizeInput" min="20" max="100" value="40" disabled>
     </label>
     <button id="applyBtn" disabled>Apply</button>
     <button id="saveBtn">Save</button>
-    <input type="file" id="loadInput" accept=".json">
+    <label>
+      Load:
+      <input type="file" id="loadInput" accept=".json">
+    </label>
   </div>
-  <svg id="svgArea"></svg>
+  
+  <svg id="svgArea" xmlns="http://www.w3.org/2000/svg"></svg>
+  
   <script src="script.js"></script>
 </body>
 </html>
