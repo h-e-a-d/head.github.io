@@ -2,40 +2,95 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
 }
+
 #controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 8px;
   background: #f4f4f4;
   border-bottom: 1px solid #ccc;
 }
+
 #controls label {
   display: flex;
   align-items: center;
   gap: 4px;
 }
+
+#controls input[type="number"],
+#controls input[type="color"],
+#controls button,
+#controls input[type="file"] {
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
 #controls input[type="number"] {
   width: 60px;
 }
-#controls button, #controls input {
-  padding: 4px 8px;
-  font-size: 14px;
-}
+
 #svgArea {
   width: 100%;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 56px);
   background: #fafafa;
+  touch-action: none;
+  user-select: none;
 }
-.person {
-  cursor: pointer;
+
+circle.person {
+  cursor: grab;
+  transition: stroke 0.2s ease;
 }
-.person.selected {
-  stroke: #e74c3c;
+
+circle.person.selected {
+  stroke: #e74c3c !important;
+  stroke-width: 3px;
 }
-.relation {
+
+line.relation {
   stroke: #555;
   stroke-width: 2;
   pointer-events: stroke;
   cursor: pointer;
+}
+
+line.relation:hover {
+  stroke: #e74c3c;
+  stroke-width: 3;
+}
+
+text {
+  font-size: 12px;
+  pointer-events: none;
+  fill: #333;
+  user-select: none;
+}
+
+text.dob {
+  font-size: 10px;
+  fill: #666;
+}
+
+#centerBtn {
+  margin-left: auto;
+}
+
+/* mobile adjustments */
+@media (max-width: 600px) {
+  #controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  #controls input,
+  #controls button {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  #centerBtn {
+    margin-left: 0;
+  }
 }
