@@ -1,3 +1,4 @@
+/* style.css (unchanged) :contentReference[oaicite:1]{index=1} */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -132,16 +133,14 @@ button:disabled {
   #controls button {
     width: 100%;
     margin-bottom: 4px;
-    padding: 12px 8px; /* Larger touch targets */
+    padding: 12px 8px;
     font-size: 16px;
   }
   
   circle.person {
-    /* Create larger touch target while keeping visual size */
     stroke-width: 4px;
   }
   
-  /* Improve font visibility on mobile */
   text {
     font-size: 14px;
     font-weight: 500;
@@ -151,7 +150,6 @@ button:disabled {
     font-size: 12px;
   }
   
-  /* Make connection lines more visible on mobile */
   line.relation {
     stroke-width: 4px;
   }
