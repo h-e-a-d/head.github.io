@@ -1,4 +1,6 @@
-/* style.css (unchanged) :contentReference[oaicite:1]{index=1} */
+/* style.css */
+
+/* ————— Base Styles (unchanged) ————— */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -122,39 +124,58 @@ button:disabled {
   background-color: #8e44ad;
 }
 
-/* Mobile adjustments */
+/* ————— Mobile View: full-width, 2-column grid ————— */
 @media (max-width: 600px) {
   #controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  #controls input,
-  #controls button {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 4px;
     width: 100%;
-    margin-bottom: 4px;
-    padding: 12px 8px;
-    font-size: 16px;
+    box-sizing: border-box;
   }
-  
-  circle.person {
-    stroke-width: 4px;
-  }
-  
-  text {
+
+  /* Make each control fill its grid cell */
+  #controls > * {
+    width: 100%;
+    margin: 0;
+    padding: 6px 4px;
     font-size: 14px;
-    font-weight: 500;
+    box-sizing: border-box;
   }
-  
-  text.dob {
+
+  /* Slightly tighter gaps in labels */
+  #controls label {
+    gap: 2px;
+  }
+
+  /* Narrower number inputs */
+  #controls input[type="number"] {
+    width: 50px;
+  }
+
+  #controls input[type="color"] {
+    padding: 4px;
+  }
+
+  /* Tweak strokes/text for mobile clarity */
+  circle.person {
+    stroke-width: 3px;
+  }
+
+  text {
     font-size: 12px;
   }
-  
-  line.relation {
-    stroke-width: 4px;
+
+  text.dob {
+    font-size: 10px;
   }
-  
+
+  line.relation {
+    stroke-width: 3px;
+  }
+
   line.relation:hover {
-    stroke-width: 6px;
+    stroke-width: 5px;
   }
 }
