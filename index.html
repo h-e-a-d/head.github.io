@@ -1,9 +1,8 @@
-<!-- index.html (unchanged) :contentReference[oaicite:0]{index=0} -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Family Tree Builder</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -21,15 +20,16 @@
       <input type="number" id="sizeInput" min="20" max="100" value="40" disabled>
     </label>
     <button id="applyBtn" disabled>Apply</button>
+    <button id="bringToFrontBtn" disabled>Bring To Front</button>
+    <button id="undoBtn" disabled>Undo</button>
     <button id="saveBtn">Save</button>
-    <label>
+    <label class="full-span">
       Load:
       <input type="file" id="loadInput" accept=".json">
     </label>
   </div>
-  
+
   <svg id="svgArea" xmlns="http://www.w3.org/2000/svg"></svg>
-  
   <script src="script.js"></script>
 </body>
 </html>
