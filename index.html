@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Family Tree Builder</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -22,6 +22,9 @@
     <button id="applyBtn" disabled>Apply</button>
     <button id="bringToFrontBtn" disabled>Bring To Front</button>
     <button id="undoBtn" disabled>Undo</button>
+    <button id="exportSvgBtn">Export SVG</button>
+    <button id="exportPngBtn">Export PNG</button>
+    <button id="exportPdfBtn">Export PDF</button>
     <button id="saveBtn">Save</button>
     <label class="full-span">
       Load:
@@ -30,6 +33,9 @@
   </div>
 
   <svg id="svgArea" xmlns="http://www.w3.org/2000/svg"></svg>
+
   <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="export.js"></script>
 </body>
 </html>
