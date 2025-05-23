@@ -22,6 +22,22 @@
     <button id="applyBtn" disabled>Apply</button>
     <button id="bringToFrontBtn" disabled>Bring To Front</button>
     <button id="undoBtn" disabled>Undo</button>
+
+    <!-- New font controls -->
+    <label>
+      Font:
+      <select id="fontSelect">
+        <option value="Ardeco">Ardeco</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="Times New Roman, serif">Times New Roman</option>
+        <option value="Courier New, monospace">Courier New</option>
+      </select>
+    </label>
+    <label>
+      Font size:
+      <input type="number" id="fontSizeInput" min="6" max="72" value="12">
+    </label>
+
     <button id="exportSvgBtn">Export SVG</button>
     <button id="exportPngBtn">Export PNG</button>
     <button id="exportPdfBtn">Export PDF</button>
