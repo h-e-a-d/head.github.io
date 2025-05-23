@@ -1,9 +1,18 @@
 /* style.css */
 
-/*————— Base Styles —————*/
+/* ————— Load Ardeco from TTF in same folder ————— */
+@font-face {
+  font-family: 'Ardeco';
+  src: url('Ardeco.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ————— Base Styles ————— */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Ardeco', Arial, sans-serif;
   overscroll-behavior: none;
 }
 
@@ -21,6 +30,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+  font-family: 'Ardeco', Arial, sans-serif;
 }
 
 #controls input[type="number"],
@@ -29,6 +39,7 @@ body {
 #controls input[type="file"] {
   padding: 6px 8px;
   font-size: 14px;
+  font-family: 'Ardeco', Arial, sans-serif;
 }
 
 #controls input[type="number"] {
@@ -43,22 +54,21 @@ body {
   user-select: none;
 }
 
-/*————— Person Node Styling —————*/
-/* Remove default circle outline */
+/* ————— Person Node Styling ————— */
 circle.person {
   cursor: grab;
   transition: stroke-width 0.2s ease;
   stroke: none !important;
 }
 
-/* Show outline when selected */
 circle.person.selected {
   stroke: #e74c3c !important;
   stroke-width: 4px !important;
 }
 
-/*————— Text Styling —————*/
+/* ————— Text Styling ————— */
 text {
+  font-family: 'Ardeco', sans-serif;
   font-size: 12px;
   pointer-events: none;
   user-select: none;
@@ -74,7 +84,7 @@ text.dob {
   fill: #666;
 }
 
-/*————— Connector Lines —————*/
+/* ————— Connector Lines ————— */
 line.relation {
   stroke: #555;
   stroke-width: 3;
@@ -88,7 +98,7 @@ line.relation:hover {
   stroke-width: 4;
 }
 
-/*————— Button Styling —————*/
+/* ————— Button Styling ————— */
 button {
   background-color: #3498db;
   color: white;
@@ -96,6 +106,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-family: 'Ardeco', Arial, sans-serif;
 }
 
 button:hover {
@@ -127,7 +138,7 @@ button:disabled {
   background-color: #8e44ad;
 }
 
-/*————— Mobile View: Exact 2-Column Grid —————*/
+/* ————— Mobile View: Exact 2-Column Grid ————— */
 @media (max-width: 600px) {
   html, body {
     width: 100%;
@@ -146,7 +157,7 @@ button:disabled {
   /* Ensure each control fits its cell */
   #controls > * {
     box-sizing: border-box;
-    min-width: 0;       /* prevents long text from stretching columns */
+    min-width: 0;
     width: 100%;
     margin: 0;
     padding: 6px 4px;
@@ -165,7 +176,7 @@ button:disabled {
     padding: 4px;
   }
 
-  /* Make the Load control span both columns */
+  /* Load control spans both columns */
   #controls > .full-span {
     grid-column: 1 / -1;
   }
