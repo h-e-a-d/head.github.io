@@ -36,7 +36,8 @@ body {
 #controls input[type="number"],
 #controls input[type="color"],
 #controls button,
-#controls input[type="file"] {
+#controls input[type="file"],
+#controls select {
   padding: 6px 8px;
   font-size: 14px;
   font-family: 'Ardeco', Arial, sans-serif;
@@ -138,13 +139,12 @@ button:disabled {
   background-color: #8e44ad;
 }
 
-/* ————— Mobile View: Exact 2-Column Grid ————— */
+/* ————— Mobile View: 2-Column Grid ————— */
 @media (max-width: 600px) {
   html, body {
     width: 100%;
     overflow-x: hidden;
   }
-
   #controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -153,8 +153,6 @@ button:disabled {
     width: 100%;
     box-sizing: border-box;
   }
-
-  /* Ensure each control fits its cell */
   #controls > * {
     box-sizing: border-box;
     min-width: 0;
@@ -163,42 +161,13 @@ button:disabled {
     padding: 6px 4px;
     font-size: 14px;
   }
-
-  #controls label {
-    gap: 2px;
-  }
-
-  #controls input[type="number"] {
-    width: 50px;
-  }
-
-  #controls input[type="color"] {
-    padding: 4px;
-  }
-
-  /* Load control spans both columns */
-  #controls > .full-span {
-    grid-column: 1 / -1;
-  }
-
-  /* Tweak node/text/line styling for mobile */
-  circle.person {
-    stroke-width: 3px;
-  }
-
-  text {
-    font-size: 12px;
-  }
-
-  text.dob {
-    font-size: 10px;
-  }
-
-  line.relation {
-    stroke-width: 3px;
-  }
-
-  line.relation:hover {
-    stroke-width: 5px;
-  }
+  #controls label { gap: 2px; }
+  #controls input[type="number"] { width: 50px; }
+  #controls input[type="color"] { padding: 4px; }
+  #controls > .full-span { grid-column: 1 / -1; }
+  circle.person { stroke-width: 3px; }
+  text { font-size: 12px; }
+  text.dob { font-size: 10px; }
+  line.relation { stroke-width: 3px; }
+  line.relation:hover { stroke-width: 5px; }
 }
