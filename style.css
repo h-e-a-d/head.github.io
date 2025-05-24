@@ -1,6 +1,9 @@
 /* style.css */
+:root {
+  --control-font-size: 12px;
+}
 
-/* ————— Load Ardeco from TTF in same folder ————— */
+/* Load Ardeco from TTF in same folder */
 @font-face {
   font-family: 'Ardeco';
   src: url('Ardeco.ttf') format('truetype');
@@ -9,7 +12,7 @@
   font-display: swap;
 }
 
-/* ————— Base Styles ————— */
+/* Base */
 body {
   margin: 0;
   font-family: 'Ardeco', Arial, sans-serif;
@@ -33,13 +36,12 @@ body {
   font-family: 'Ardeco', Arial, sans-serif;
 }
 
-#controls input[type="number"],
-#controls input[type="color"],
-#controls button,
-#controls input[type="file"],
-#controls select {
+#controls label,
+#controls select,
+#controls input,
+#controls button {
+  font-size: var(--control-font-size);
   padding: 6px 8px;
-  font-size: 14px;
   font-family: 'Ardeco', Arial, sans-serif;
 }
 
@@ -55,11 +57,11 @@ body {
   user-select: none;
 }
 
-/* ————— Person Node Styling ————— */
+/* Person node */
 circle.person {
   cursor: grab;
-  transition: stroke-width 0.2s ease;
   stroke: none !important;
+  transition: stroke-width 0.2s;
 }
 
 circle.person.selected {
@@ -67,10 +69,8 @@ circle.person.selected {
   stroke-width: 4px !important;
 }
 
-/* ————— Text Styling ————— */
+/* Text */
 text {
-  font-family: 'Ardeco', sans-serif;
-  font-size: 12px;
   pointer-events: none;
   user-select: none;
 }
@@ -81,25 +81,22 @@ text.name {
 }
 
 text.dob {
-  font-size: 10px;
   fill: #666;
 }
 
-/* ————— Connector Lines ————— */
+/* Lines */
 line.relation {
   stroke: #555;
   stroke-width: 3;
   stroke-linecap: round;
-  pointer-events: all;
   cursor: pointer;
 }
-
 line.relation:hover {
   stroke: #e74c3c;
   stroke-width: 4;
 }
 
-/* ————— Button Styling ————— */
+/* Buttons */
 button {
   background-color: #3498db;
   color: white;
@@ -107,67 +104,34 @@ button {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
-  font-family: 'Ardeco', Arial, sans-serif;
 }
+button:hover { background-color: #2980b9; }
+button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
 
-button:hover {
-  background-color: #2980b9;
-}
+#connectBtn.active { background-color: #e74c3c; }
+#centerBtn { background-color: #2ecc71; }
+#centerBtn:hover { background-color: #27ae60; }
+#saveBtn { background-color: #9b59b6; }
+#saveBtn:hover { background-color: #8e44ad; }
 
-button:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
-
-#connectBtn.active {
-  background-color: #e74c3c;
-}
-
-#centerBtn {
-  background-color: #2ecc71;
-}
-
-#centerBtn:hover {
-  background-color: #27ae60;
-}
-
-#saveBtn {
-  background-color: #9b59b6;
-}
-
-#saveBtn:hover {
-  background-color: #8e44ad;
-}
-
-/* ————— Mobile View: 2-Column Grid ————— */
+/* Mobile 2-col */
 @media (max-width: 600px) {
-  html, body {
-    width: 100%;
-    overflow-x: hidden;
-  }
   #controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4px;
     padding: 4px;
-    width: 100%;
     box-sizing: border-box;
   }
   #controls > * {
-    box-sizing: border-box;
     min-width: 0;
     width: 100%;
     margin: 0;
     padding: 6px 4px;
-    font-size: 14px;
   }
-  #controls label { gap: 2px; }
-  #controls input[type="number"] { width: 50px; }
-  #controls input[type="color"] { padding: 4px; }
   #controls > .full-span { grid-column: 1 / -1; }
-  circle.person { stroke-width: 3px; }
   text { font-size: 12px; }
   text.dob { font-size: 10px; }
-  line.relation { stroke-width: 3px; }
-  line.relation:hover { stroke-width: 5px; }
+  line.relation { stroke-width: 3; }
+  line.relation:hover { stroke-width: 5; }
 }
