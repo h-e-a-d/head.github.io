@@ -1,4 +1,4 @@
-// export.js
+// export.js ver2
 window.addEventListener('DOMContentLoaded', () => {
   async function inlineCssAndFont() {
     try {
