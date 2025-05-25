@@ -4,9 +4,167 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Family Tree Builder</title>
+  <style>
+    /* Inline essential styles to prevent loading issues */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overscroll-behavior: none;
+    }
+
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: #f4f4f4;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #controls label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    #controls input[type="number"],
+    #controls input[type="color"],
+    #controls button,
+    #controls input[type="file"],
+    #controls select {
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+
+    #controls input[type="number"] {
+      width: 60px;
+    }
+
+    #svgArea {
+      width: 100%;
+      height: calc(100vh - 60px);
+      background: #f0f0f0;
+      touch-action: none;
+      user-select: none;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    /* Export button styling */
+    #exportSvgBtn, #exportPngBtn, #exportPdfBtn {
+      background-color: #27ae60;
+    }
+
+    #exportSvgBtn:hover, #exportPngBtn:hover, #exportPdfBtn:hover {
+      background-color: #219a52;
+    }
+
+    circle.person {
+      cursor: grab;
+      transition: stroke-width 0.2s ease;
+      stroke: none;
+    }
+
+    circle.person.selected {
+      stroke: #e74c3c;
+      stroke-width: 4px;
+    }
+
+    text {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    text.name {
+      font-weight: bold;
+      fill: #333;
+    }
+
+    text.dob {
+      font-size: 10px;
+      fill: #666;
+    }
+
+    line.relation {
+      stroke: #555;
+      stroke-width: 3;
+      stroke-linecap: round;
+      pointer-events: all;
+      cursor: pointer;
+    }
+
+    line.relation:hover {
+      stroke: #e74c3c;
+      stroke-width: 4;
+    }
+
+    @media (max-width: 600px) {
+      #controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 4px;
+      }
+      
+      #controls > * {
+        box-sizing: border-box;
+        min-width: 0;
+        width: 100%;
+        margin: 0;
+        padding: 6px 4px;
+        font-size: 14px;
+      }
+      
+      #controls > .full-span { 
+        grid-column: 1 / -1; 
+      }
+    }
+
+    .error-message {
+      background-color: #e74c3c;
+      color: white;
+      padding: 8px;
+      margin: 4px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .success-message {
+      background-color: #27ae60;
+      color: white;
+      padding: 8px;
+      margin: 4px;
+      border-radius: 4px;
+      display: none;
+    }
+  </style>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="errorContainer">
+    <div id="errorMessage" class="error-message"></div>
+    <div id="successMessage" class="success-message"></div>
+  </div>
+
   <div id="controls">
     <button id="addPersonBtn">Add Person</button>
     <button id="connectBtn">Connect</button>
@@ -23,14 +181,14 @@
     <button id="bringToFrontBtn" disabled>Bring To Front</button>
     <button id="undoBtn" disabled>Undo</button>
 
-    <!-- New font controls -->
+    <!-- Font controls -->
     <label>
       Font:
       <select id="fontSelect">
-        <option value="Ardeco">Ardeco</option>
         <option value="Arial, sans-serif">Arial</option>
         <option value="Times New Roman, serif">Times New Roman</option>
         <option value="Courier New, monospace">Courier New</option>
+        <option value="Ardeco">Ardeco (if available)</option>
       </select>
     </label>
     <label>
@@ -38,9 +196,12 @@
       <input type="number" id="fontSizeInput" min="6" max="72" value="12">
     </label>
 
-    <button id="exportSvgBtn">Export SVG</button>
-    <button id="exportPngBtn">Export PNG</button>
-    <button id="exportPdfBtn">Export PDF</button>
+    <!-- Export buttons -->
+    <button id="exportSvgBtn" title="Export as SVG vector file">Export SVG</button>
+    <button id="exportPngBtn" title="Export as PNG image">Export PNG</button>
+    <button id="exportPdfBtn" title="Export as PDF document">Export PDF</button>
+    
+    <!-- Save/Load -->
     <button id="saveBtn">Save</button>
     <label class="full-span">
       Load:
@@ -50,8 +211,71 @@
 
   <svg id="svgArea" xmlns="http://www.w3.org/2000/svg"></svg>
 
+  <script>
+    // Add error handling and loading feedback
+    window.showMessage = function(message, type = 'error') {
+      const container = document.getElementById(type + 'Message');
+      if (container) {
+        container.textContent = message;
+        container.style.display = 'block';
+        setTimeout(() => {
+          container.style.display = 'none';
+        }, 5000);
+      }
+    };
+
+    window.addEventListener('error', function(e) {
+      console.error('Global error:', e.error);
+      showMessage('An error occurred: ' + e.message);
+    });
+
+    // Check for required features
+    if (!window.SVGElement) {
+      showMessage('SVG not supported in this browser');
+    }
+
+    // Load PDF library with error handling
+    function loadJsPDF() {
+      return new Promise((resolve, reject) => {
+        if (window.jspdf) {
+          resolve();
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = () => {
+          if (window.jspdf) {
+            console.log('jsPDF loaded successfully');
+            resolve();
+          } else {
+            reject(new Error('jsPDF failed to load properly'));
+          }
+        };
+        script.onerror = () => reject(new Error('Failed to load jsPDF library'));
+        document.head.appendChild(script);
+      });
+    }
+
+    // Load libraries and scripts
+    Promise.all([
+      loadJsPDF().catch(err => {
+        console.warn('PDF export will not be available:', err);
+        const pdfBtn = document.getElementById('exportPdfBtn');
+        if (pdfBtn) {
+          pdfBtn.disabled = true;
+          pdfBtn.title = 'PDF export unavailable - library failed to load';
+        }
+      })
+    ]).then(() => {
+      console.log('Libraries loaded, initializing application...');
+    });
+  </script>
+
+  <!-- Load main application script -->
   <script src="script.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <!-- Load export functionality -->
   <script src="export.js"></script>
 </body>
 </html>
