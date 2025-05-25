@@ -1,4 +1,4 @@
-// script.js
+// script.js - Fixed version with proper dynamic font handling
 document.addEventListener('DOMContentLoaded', function() {
   // DOM elements
   const svg             = document.getElementById('svgArea');
@@ -34,19 +34,84 @@ document.addEventListener('DOMContentLoaded', function() {
   updateViewBox();
   createGrid();
   setupPanAndZoom();
-  applyGlobalFont();
+  updateGlobalFontCSS(); // Use CSS-based approach
 
-  // Font controls
+  // Font controls - FIXED to properly update all text
   fontSelect.addEventListener('change', () => {
     globalFontFamily = fontSelect.value;
     pushHistory();
-    applyGlobalFont();
+    updateGlobalFontCSS(); // Update CSS instead of individual elements
+    applyGlobalFontToAllText(); // Also update existing elements
   });
+  
   fontSizeInput.addEventListener('change', () => {
     globalFontSize = +fontSizeInput.value;
     pushHistory();
-    applyGlobalFont();
+    updateGlobalFontCSS(); // Update CSS instead of individual elements
+    applyGlobalFontToAllText(); // Also update existing elements
   });
+
+  // NEW: CSS-based font management for consistent application
+  function updateGlobalFontCSS() {
+    // Remove existing font style if it exists
+    let fontStyle = document.getElementById('dynamicFontStyle');
+    if (fontStyle) {
+      fontStyle.remove();
+    }
+
+    // Create new style element
+    fontStyle = document.createElement('style');
+    fontStyle.id = 'dynamicFontStyle';
+    fontStyle.textContent = `
+      #svgArea text {
+        font-family: ${globalFontFamily} !important;
+        font-size: ${globalFontSize}px !important;
+      }
+      #svgArea text.name {
+        font-family: ${globalFontFamily} !important;
+        font-size: ${globalFontSize}px !important;
+        font-weight: bold;
+        fill: #333;
+      }
+      #svgArea text.dob {
+        font-family: ${globalFontFamily} !important;
+        font-size: ${Math.max(6, globalFontSize - 2)}px !important;
+        fill: #666;
+      }
+    `;
+    document.head.appendChild(fontStyle);
+  }
+
+  // NEW: Apply font to all existing text elements
+  function applyGlobalFontToAllText() {
+    svg.querySelectorAll('text').forEach(t => {
+      t.setAttribute('font-family', globalFontFamily);
+      if (t.classList.contains('dob')) {
+        t.setAttribute('font-size', Math.max(6, globalFontSize - 2));
+      } else {
+        t.setAttribute('font-size', globalFontSize);
+      }
+    });
+  }
+
+  // NEW: Helper function to create text with proper font settings
+  function createTextElement(x, y, textContent, className = 'name') {
+    const t = document.createElementNS(svg.namespaceURI, 'text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('class', className);
+    t.setAttribute('font-family', globalFontFamily);
+    
+    if (className === 'dob') {
+      t.setAttribute('font-size', Math.max(6, globalFontSize - 2));
+    } else {
+      t.setAttribute('font-size', globalFontSize);
+    }
+    
+    t.textContent = textContent;
+    return t;
+  }
 
   // Other controls
   addBtn.addEventListener('click',    () => { pushHistory(); addPerson(); });
@@ -85,13 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isRestoring) return;
     history.push(JSON.stringify(getCurrentState()));
     undoBtn.disabled = false;
-  }
-
-  function applyGlobalFont() {
-    svg.querySelectorAll('text').forEach(t => {
-      t.setAttribute('font-family', globalFontFamily);
-      t.setAttribute('font-size',   globalFontSize);
-    });
   }
 
   function updateViewBox() {
@@ -222,20 +280,11 @@ document.addEventListener('DOMContentLoaded', function() {
     c.setAttribute('r',r);   c.setAttribute('fill',fill);
     c.setAttribute('class','person');
 
-    function makeText(yOffset, txt, cls){
-      const t=document.createElementNS(svg.namespaceURI,'text');
-      t.setAttribute('x',cx); t.setAttribute('y',cy+yOffset);
-      t.setAttribute('text-anchor','middle');
-      t.setAttribute('class',cls);
-      t.setAttribute('font-family',globalFontFamily);
-      t.setAttribute('font-size',  globalFontSize);
-      t.textContent=txt;
-      return t;
-    }
-    const line1=makeText(-gap, [name,father].filter(Boolean).join(' '), 'name');
-    const line2=makeText(0,    surname,                              'name');
-    const line3=makeText(gap,  birth,                                'name');
-    const line4=makeText(gap*2,dob,                                  'dob');
+    // FIXED: Use new text creation function with proper font settings
+    const line1 = createTextElement(cx, cy - gap, [name,father].filter(Boolean).join(' '), 'name');
+    const line2 = createTextElement(cx, cy,       surname,                                  'name');
+    const line3 = createTextElement(cx, cy + gap, birth,                                   'name');
+    const line4 = createTextElement(cx, cy + gap * 2, dob,                               'dob');
 
     g.append(c, line1, line2, line3, line4);
     svg.appendChild(g);
@@ -304,9 +353,14 @@ document.addEventListener('DOMContentLoaded', function() {
           cy=+selected.getAttribute('cy'),
           gap=0.3*nr;
 
+    // FIXED: Apply current font settings to text elements
     [selected._line1,selected._line2,selected._line3,selected._line4].forEach((t,i)=>{
-      t.setAttribute('font-family',globalFontFamily);
-      t.setAttribute('font-size',  globalFontSize);
+      t.setAttribute('font-family', globalFontFamily);
+      if (t.classList.contains('dob')) {
+        t.setAttribute('font-size', Math.max(6, globalFontSize - 2));
+      } else {
+        t.setAttribute('font-size', globalFontSize);
+      }
     });
 
     selected._line1.setAttribute('x',cx); selected._line1.setAttribute('y',cy-gap);
@@ -356,10 +410,17 @@ document.addEventListener('DOMContentLoaded', function() {
       c.setAttribute('cx',x); c.setAttribute('cy',y);
 
       const r=+c.getAttribute('r'), gap=0.3*r;
+      
+      // FIXED: Apply current font settings during drag
       [c._line1,c._line2,c._line3,c._line4].forEach((t,i)=>{
-        t.setAttribute('font-family',globalFontFamily);
-        t.setAttribute('font-size',  globalFontSize);
+        t.setAttribute('font-family', globalFontFamily);
+        if (t.classList.contains('dob')) {
+          t.setAttribute('font-size', Math.max(6, globalFontSize - 2));
+        } else {
+          t.setAttribute('font-size', globalFontSize);
+        }
       });
+      
       c._line1.setAttribute('x',x); c._line1.setAttribute('y',y-gap);
       c._line2.setAttribute('x',x); c._line2.setAttribute('y',y);
       c._line3.setAttribute('x',x); c._line3.setAttribute('y',y+gap);
@@ -382,7 +443,16 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function saveTree(){
-    const data={people:[],relations:[]};
+    const data={
+      people:[],
+      relations:[],
+      // FIXED: Save font settings in the file
+      fontSettings: {
+        fontFamily: globalFontFamily,
+        fontSize: globalFontSize
+      }
+    };
+    
     svg.querySelectorAll('g[data-id]').forEach(g=>{
       const c=g.querySelector('circle');
       data.people.push({
@@ -423,6 +493,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function loadTree(data){
     svg.innerHTML=''; personCount=0; selected=null; initialCircle=null;
+    
+    // FIXED: Load font settings if available
+    if (data.fontSettings) {
+      globalFontFamily = data.fontSettings.fontFamily;
+      globalFontSize = data.fontSettings.fontSize;
+      fontSelect.value = globalFontFamily;
+      fontSizeInput.value = globalFontSize;
+      updateGlobalFontCSS();
+    }
+    
     createGrid();
     const map={};
     (data.people||[]).forEach(p=>{
@@ -462,10 +542,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if(b!==null) g.setAttribute('data-birth-name',b);
 
     const cx=+c.getAttribute('cx'), cy=+c.getAttribute('cy'), r=+c.getAttribute('r'), gap=0.3*r;
+    
+    // FIXED: Apply current font settings when editing
     [c._line1,c._line2,c._line3,c._line4].forEach(t=>{
-      t.setAttribute('font-family',globalFontFamily);
-      t.setAttribute('font-size',  globalFontSize);
+      t.setAttribute('font-family', globalFontFamily);
+      if (t.classList.contains('dob')) {
+        t.setAttribute('font-size', Math.max(6, globalFontSize - 2));
+      } else {
+        t.setAttribute('font-size', globalFontSize);
+      }
     });
+    
     c._line1.textContent=[g.getAttribute('data-name'),g.getAttribute('data-father-name')].filter(Boolean).join(' ');
     c._line2.textContent=g.getAttribute('data-surname');
     c._line3.textContent=g.getAttribute('data-birth-name');
@@ -505,7 +592,12 @@ document.addEventListener('DOMContentLoaded', function() {
       relations:[...svg.querySelectorAll('line.relation')].map(l=>({
         source:l.getAttribute('data-source'),
         target:l.getAttribute('data-target')
-      }))
+      })),
+      // FIXED: Include font settings in state for undo/redo
+      fontSettings: {
+        fontFamily: globalFontFamily,
+        fontSize: globalFontSize
+      }
     };
   }
 });
