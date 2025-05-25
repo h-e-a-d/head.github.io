@@ -4,11 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Family Tree Builder</title>
+  
+  <!-- Load Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Merriweather:wght@400;700&family=PT+Serif:wght@400;700&family=Poppins:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+  
   <style>
     /* Inline essential styles to prevent loading issues */
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: Inter, Arial, sans-serif;
       overscroll-behavior: none;
     }
 
@@ -35,10 +41,15 @@
     #controls select {
       padding: 6px 8px;
       font-size: 14px;
+      font-family: Inter, Arial, sans-serif;
     }
 
     #controls input[type="number"] {
       width: 60px;
+    }
+
+    #controls select {
+      min-width: 120px;
     }
 
     #svgArea {
@@ -88,7 +99,7 @@
     }
 
     text {
-      font-family: Arial, sans-serif;
+      font-family: Inter, Arial, sans-serif;
       font-size: 12px;
       pointer-events: none;
       user-select: none;
@@ -156,6 +167,12 @@
       border-radius: 4px;
       display: none;
     }
+
+    /* Font preview styles */
+    .font-preview {
+      font-size: 14px;
+      padding: 2px 0;
+    }
   </style>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -181,14 +198,35 @@
     <button id="bringToFrontBtn" disabled>Bring To Front</button>
     <button id="undoBtn" disabled>Undo</button>
 
-    <!-- Font controls -->
+    <!-- Enhanced font controls with professional fonts -->
     <label>
       Font:
       <select id="fontSelect">
-        <option value="Arial, sans-serif">Arial</option>
-        <option value="Times New Roman, serif">Times New Roman</option>
-        <option value="Courier New, monospace">Courier New</option>
-        <option value="Ardeco">Ardeco (if available)</option>
+        <optgroup label="Modern Sans-Serif">
+          <option value="Inter, sans-serif">Inter</option>
+          <option value="Roboto, sans-serif">Roboto</option>
+          <option value="Open Sans, sans-serif">Open Sans</option>
+          <option value="Lato, sans-serif">Lato</option>
+          <option value="Montserrat, sans-serif">Montserrat</option>
+          <option value="Source Sans Pro, sans-serif">Source Sans Pro</option>
+          <option value="Poppins, sans-serif">Poppins</option>
+        </optgroup>
+        <optgroup label="Serif Fonts">
+          <option value="Merriweather, serif">Merriweather</option>
+          <option value="PT Serif, serif">PT Serif</option>
+        </optgroup>
+        <optgroup label="Monospace">
+          <option value="Fira Code, monospace">Fira Code</option>
+        </optgroup>
+        <optgroup label="System Fonts">
+          <option value="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif">SF Pro (Apple)</option>
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="Times New Roman, serif">Times New Roman</option>
+          <option value="Courier New, monospace">Courier New</option>
+        </optgroup>
+        <optgroup label="Custom">
+          <option value="Ardeco, sans-serif">Ardeco (if available)</option>
+        </optgroup>
       </select>
     </label>
     <label>
@@ -234,6 +272,38 @@
       showMessage('SVG not supported in this browser');
     }
 
+    // Font loading check
+    function checkFontLoading() {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          console.log('Google Fonts loaded successfully');
+          showMessage('Fonts loaded successfully!', 'success');
+        }).catch((error) => {
+          console.warn('Font loading issue:', error);
+        });
+      }
+    }
+
+    // Enhanced font preview functionality
+    function addFontPreview() {
+      const fontSelect = document.getElementById('fontSelect');
+      if (fontSelect) {
+        // Style options with their respective fonts
+        fontSelect.querySelectorAll('option').forEach(option => {
+          const fontFamily = option.value;
+          if (fontFamily !== 'Ardeco, sans-serif') { // Skip custom font
+            option.style.fontFamily = fontFamily;
+          }
+        });
+
+        // Show font preview when hovering over select
+        fontSelect.addEventListener('change', function() {
+          const selectedFont = this.value;
+          console.log('Font changed to:', selectedFont);
+        });
+      }
+    }
+
     // Load PDF library with error handling
     function loadJsPDF() {
       return new Promise((resolve, reject) => {
@@ -269,7 +339,33 @@
       })
     ]).then(() => {
       console.log('Libraries loaded, initializing application...');
+      checkFontLoading();
+      addFontPreview();
     });
+
+    // Debug function to test font availability
+    window.testFonts = function() {
+      const fonts = [
+        'Inter',
+        'Roboto', 
+        'Open Sans',
+        'Lato',
+        'Montserrat',
+        'Source Sans Pro',
+        'Merriweather',
+        'PT Serif',
+        'Poppins',
+        'Fira Code'
+      ];
+      
+      console.log('=== Font Availability Test ===');
+      fonts.forEach(font => {
+        if (document.fonts && document.fonts.check) {
+          const available = document.fonts.check(`12px "${font}"`);
+          console.log(`${font}: ${available ? '✓ Available' : '✗ Not loaded'}`);
+        }
+      });
+    };
   </script>
 
   <!-- Load main application script -->

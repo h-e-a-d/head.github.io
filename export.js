@@ -1,60 +1,105 @@
-// export.js - Fixed version
+// export.js - Fixed version with dynamic font support
 (async () => {
-  // 1) Get CSS styles with fallback handling
-  async function getInlineCSS() {
+  // 1) Get current font settings from the application
+  function getCurrentFontSettings() {
+    const fontSelect = document.getElementById('fontSelect');
+    const fontSizeInput = document.getElementById('fontSizeInput');
+    
+    return {
+      fontFamily: fontSelect ? fontSelect.value : 'Arial, sans-serif',
+      fontSize: fontSizeInput ? parseInt(fontSizeInput.value) || 12 : 12
+    };
+  }
+
+  // 2) Generate CSS with current font settings
+  async function getExportCSS() {
+    const { fontFamily, fontSize } = getCurrentFontSettings();
+    
     try {
-      // Try to get CSS from the link element
+      // Try to get base CSS from the link element
       const link = document.querySelector('link[rel="stylesheet"][href$="style.css"]');
-      let cssText = '';
+      let baseCss = '';
       
       if (link) {
         try {
           const response = await fetch(link.href);
-          cssText = await response.text();
+          baseCss = await response.text();
         } catch (fetchError) {
-          console.warn('Could not fetch external CSS, using computed styles fallback');
+          console.warn('Could not fetch external CSS, using built-in styles');
         }
       }
       
-      // Fallback: create essential CSS for export
-      if (!cssText) {
-        cssText = `
-          text {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            pointer-events: none;
-            user-select: none;
-          }
-          text.name {
-            font-weight: bold;
-            fill: #333;
-          }
-          text.dob {
-            font-size: 10px;
-            fill: #666;
-          }
-          circle.person {
-            stroke: none;
-          }
-          line.relation {
-            stroke: #555;
-            stroke-width: 3;
-            stroke-linecap: round;
-          }
-        `;
-      }
+      // Create comprehensive CSS with current font settings
+      const exportCSS = `
+        /* Base styles */
+        text {
+          font-family: ${fontFamily};
+          font-size: ${fontSize}px;
+          pointer-events: none;
+          user-select: none;
+        }
+        
+        text.name {
+          font-family: ${fontFamily};
+          font-size: ${fontSize}px;
+          font-weight: bold;
+          fill: #333;
+        }
+        
+        text.dob {
+          font-family: ${fontFamily};
+          font-size: ${Math.max(6, fontSize - 2)}px;
+          fill: #666;
+        }
+        
+        circle.person {
+          stroke: none;
+        }
+        
+        circle.person.selected {
+          stroke: #e74c3c;
+          stroke-width: 4px;
+        }
+        
+        line.relation {
+          stroke: #555;
+          stroke-width: 3;
+          stroke-linecap: round;
+        }
+        
+        line.relation:hover {
+          stroke: #e74c3c;
+          stroke-width: 4;
+        }
+      `;
       
-      // Try to inline font if available, but don't fail if it's not
-      try {
-        const fontResponse = await fetch('Ardeco.ttf');
-        const fontBuf = await fontResponse.arrayBuffer();
-        
-        // base64-encode font
-        let bin = '';
-        new Uint8Array(fontBuf).forEach(b => bin += String.fromCharCode(b));
-        const b64 = btoa(bin);
-        
-        const fontFace = `
+      // Handle font embedding for custom fonts
+      let fontFaceCSS = '';
+      
+      // For Google Fonts, include import in CSS
+      const googleFonts = [
+        'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 
+        'Source Sans Pro', 'Merriweather', 'PT Serif', 'Poppins', 'Fira Code'
+      ];
+      
+      const fontFamilyName = fontFamily.split(',')[0].trim().replace(/['"]/g, '');
+      
+      if (googleFonts.includes(fontFamilyName)) {
+        // For Google Fonts, add import statement
+        const fontImport = `@import url('https://fonts.googleapis.com/css2?family=${fontFamilyName.replace(/ /g, '+')}:wght@400;700&display=swap');`;
+        fontFaceCSS = fontImport + '\n';
+      } else if (fontFamilyName === 'Ardeco') {
+        // Handle custom Ardeco font
+        try {
+          const fontResponse = await fetch('Ardeco.ttf');
+          const fontBuf = await fontResponse.arrayBuffer();
+          
+          // base64-encode font
+          let bin = '';
+          new Uint8Array(fontBuf).forEach(b => bin += String.fromCharCode(b));
+          const b64 = btoa(bin);
+          
+          fontFaceCSS = `
 @font-face {
   font-family: 'Ardeco';
   src: url('data:font/ttf;base64,${b64}') format('truetype');
@@ -62,21 +107,29 @@
   font-style: normal;
 }
 `;
-        
-        // Remove existing @font-face rules more carefully
-        const cssNoFace = cssText.replace(/@font-face\s*\{[^}]*\}/g, '');
-        return fontFace + '\n' + cssNoFace;
-      } catch (fontError) {
-        console.warn('Could not load custom font for export, using fallback');
-        // Just use CSS without custom font
-        return cssText.replace(/'Ardeco',?\s*/g, '');
+        } catch (fontError) {
+          console.warn('Could not load Ardeco font for export, using fallback');
+          // Fallback to Inter
+          return exportCSS.replace(/Ardeco/g, 'Inter, sans-serif');
+        }
       }
+      
+      return fontFaceCSS + exportCSS;
+      
     } catch (err) {
-      console.warn('Failed to get CSS for export:', err);
-      // Return minimal fallback CSS
+      console.warn('Failed to generate export CSS:', err);
+      // Return minimal fallback CSS with current font settings
       return `
-        text { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
-        text.dob { font-size: 10px; fill: #666; }
+        text { 
+          font-family: ${fontFamily.includes('Inter') ? fontFamily : 'Inter, ' + fontFamily}; 
+          font-size: ${fontSize}px; 
+          fill: #333; 
+        }
+        text.dob { 
+          font-family: ${fontFamily.includes('Inter') ? fontFamily : 'Inter, ' + fontFamily}; 
+          font-size: ${Math.max(6, fontSize - 2)}px; 
+          fill: #666; 
+        }
         circle.person { stroke: none; }
         line.relation { stroke: #555; stroke-width: 3; }
       `;
@@ -121,6 +174,22 @@
     };
   }
 
+  // 3) Apply current font settings to cloned SVG text elements
+  function applyCurrentFontsToClone(clonedSvg) {
+    const { fontFamily, fontSize } = getCurrentFontSettings();
+    
+    // Update all text elements in the clone to match current settings
+    clonedSvg.querySelectorAll('text').forEach(textEl => {
+      textEl.setAttribute('font-family', fontFamily);
+      
+      if (textEl.classList.contains('dob')) {
+        textEl.setAttribute('font-size', Math.max(6, fontSize - 2));
+      } else {
+        textEl.setAttribute('font-size', fontSize);
+      }
+    });
+  }
+
   async function exportTree(format) {
     const originalSvg = document.getElementById('svgArea');
     if (!originalSvg) {
@@ -135,6 +204,10 @@
     }
 
     try {
+      // Show current font settings in console for debugging
+      const currentFonts = getCurrentFontSettings();
+      console.log('Exporting with font settings:', currentFonts);
+
       // Clone the SVG
       const clonedSvg = originalSvg.cloneNode(true);
       
@@ -142,13 +215,16 @@
       clonedSvg.querySelectorAll('rect').forEach(el => el.remove());
       clonedSvg.querySelectorAll('line:not(.relation)').forEach(el => el.remove());
       
-      // Set proper viewBox
+      // Apply current font settings to all text elements in the clone
+      applyCurrentFontsToClone(clonedSvg);
+      
+      // Set proper viewBox and dimensions
       clonedSvg.setAttribute('viewBox', `${bounds.x} ${bounds.y} ${bounds.w} ${bounds.h}`);
       clonedSvg.setAttribute('width', bounds.w);
       clonedSvg.setAttribute('height', bounds.h);
       
-      // Add CSS styles
-      const css = await getInlineCSS();
+      // Add CSS styles with current font settings
+      const css = await getExportCSS();
       const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
       const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
       style.setAttribute('type', 'text/css');
@@ -177,14 +253,18 @@
       });
 
       const canvas = document.createElement('canvas');
-      const scale = 2; // Higher resolution
+      const scale = 2; // Higher resolution for better quality
       canvas.width = bounds.w * scale;
       canvas.height = bounds.h * scale;
       
       const ctx = canvas.getContext('2d');
       ctx.scale(scale, scale);
+      
+      // Set white background
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, bounds.w, bounds.h);
+      
+      // Draw the SVG
       ctx.drawImage(img, 0, 0, bounds.w, bounds.h);
       
       URL.revokeObjectURL(svgUrl);
@@ -193,6 +273,9 @@
         canvas.toBlob((blob) => {
           if (blob) {
             download('family-tree.png', blob);
+            if (window.showMessage) {
+              window.showMessage('PNG exported successfully with current font settings!', 'success');
+            }
           } else {
             alert('Failed to create PNG');
           }
@@ -223,6 +306,10 @@
         const dataUrl = canvas.toDataURL('image/png');
         pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
         pdf.save('family-tree.pdf');
+        
+        if (window.showMessage) {
+          window.showMessage('PDF exported successfully with current font settings!', 'success');
+        }
       }
 
     } catch (error) {
@@ -258,13 +345,34 @@
     addExportListeners();
   }
 
-  // Debug function
+  // Enhanced debug function
   window.debugExport = function() {
     const svg = document.getElementById('svgArea');
     const bounds = getBounds(svg);
+    const fontSettings = getCurrentFontSettings();
+    
+    console.log('=== Export Debug Info ===');
     console.log('SVG bounds:', bounds);
     console.log('People count:', svg.querySelectorAll('circle.person').length);
     console.log('Relations count:', svg.querySelectorAll('line.relation').length);
+    console.log('Current font settings:', fontSettings);
+    console.log('Sample text elements:');
+    svg.querySelectorAll('text').forEach((t, i) => {
+      if (i < 3) { // Show first 3 text elements
+        console.log(`  Text ${i + 1}:`, {
+          content: t.textContent,
+          fontFamily: t.getAttribute('font-family'),
+          fontSize: t.getAttribute('font-size'),
+          class: t.getAttribute('class')
+        });
+      }
+    });
+  };
+
+  // Test function to preview export CSS
+  window.previewExportCSS = async function() {
+    const css = await getExportCSS();
+    console.log('Generated export CSS:', css);
   };
 
 })();
