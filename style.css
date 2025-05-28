@@ -476,6 +476,165 @@ button:disabled {
   font-family: 'Ardeco', Inter, Arial, sans-serif;
 }
 
+/* ————— Searchable Select Styling ————— */
+.searchable-select {
+  position: relative;
+  width: 100%;
+}
+
+.select-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+  min-height: 20px;
+}
+
+.select-display:hover {
+  border-color: #bbb;
+}
+
+.select-display:focus-within,
+.searchable-select.open .select-display {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.select-text {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.select-text.placeholder {
+  color: #999;
+}
+
+.select-arrow {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+}
+
+.searchable-select.open .select-arrow {
+  transform: rotate(180deg);
+}
+
+.select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #3498db;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 250px;
+  overflow: hidden;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.searchable-select.open .select-dropdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-search-container {
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  padding: 8px;
+}
+
+.dropdown-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.dropdown-search:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.select-options {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 200px;
+}
+
+.select-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.select-option:hover {
+  background-color: #f8f9fa;
+}
+
+.select-option.selected {
+  background-color: #3498db;
+  color: white;
+}
+
+.select-option.hidden {
+  display: none;
+}
+
+.select-option:last-child {
+  border-bottom: none;
+}
+
+.select-option .gender-indicator {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
+}
+
+.select-option.selected .gender-indicator {
+  color: #bde4ff;
+}
+
+/* Scrollbar styling for better UX */
+.select-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.select-options::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.select-options::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.select-options::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 .modal-content input:focus,
 .modal-content select:focus {
   outline: none;

@@ -30,9 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const modalDob = document.getElementById('modalDob');
   const modalBirth = document.getElementById('modalBirth');
   const modalGender = document.getElementById('modalGender');
+  
+  // Searchable select elements
   const modalMother = document.getElementById('modalMother');
   const modalFatherSelect = document.getElementById('modalFatherSelect');
   const modalSpouse = document.getElementById('modalSpouse');
+  const modalMotherDisplay = document.getElementById('modalMotherDisplay');
+  const modalFatherDisplay = document.getElementById('modalFatherDisplay');
+  const modalSpouseDisplay = document.getElementById('modalSpouseDisplay');
+  
   const modalCancel = document.getElementById('modalCancel');
   const peopleCounter = document.getElementById('peopleCounter');
   
@@ -83,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     setupViewToggle();
     setupTableView();
+    setupSearchableSelects();
   }, 100);
 
   // View mode toggle functionality
@@ -122,6 +129,291 @@ document.addEventListener('DOMContentLoaded', function() {
         if (generateConnectionsBtn) generateConnectionsBtn.disabled = false;
         if (centerBtn) centerBtn.disabled = false;
         updateControlsState();
+      }
+    });
+  }
+
+  // Setup searchable select dropdowns
+  function setupSearchableSelects() {
+    console.log('Setting up searchable selects...');
+    
+    // Check if elements exist
+    const elements = {
+      modalMother: document.getElementById('modalMother'),
+      modalMotherDisplay: document.getElementById('modalMotherDisplay'),
+      modalMotherContainer: document.getElementById('modalMotherContainer'),
+      modalFatherSelect: document.getElementById('modalFatherSelect'),
+      modalFatherDisplay: document.getElementById('modalFatherDisplay'),
+      modalFatherContainer: document.getElementById('modalFatherContainer'),
+      modalSpouse: document.getElementById('modalSpouse'),
+      modalSpouseDisplay: document.getElementById('modalSpouseDisplay'),
+      modalSpouseContainer: document.getElementById('modalSpouseContainer')
+    };
+    
+    console.log('Elements found:', elements);
+    
+    // Only setup if we have the new searchable elements
+    if (elements.modalMotherContainer && elements.modalMotherDisplay) {
+      setupSearchableSelect('modalMother', 'female');
+    } else {
+      console.log('Using fallback for Mother - old select element detected');
+    }
+    
+    if (elements.modalFatherContainer && elements.modalFatherDisplay) {
+      setupSearchableSelect('modalFatherSelect', 'male');
+    } else {
+      console.log('Using fallback for Father - old select element detected');
+    }
+    
+    if (elements.modalSpouseContainer && elements.modalSpouseDisplay) {
+      setupSearchableSelect('modalSpouse', 'all');
+    } else {
+      console.log('Using fallback for Spouse - old select element detected');
+    }
+  }
+
+  function setupSearchableSelect(fieldId, genderFilter) {
+    const hiddenInput = document.getElementById(fieldId);
+    let displayElement, container;
+    
+    // Handle different field naming patterns
+    if (fieldId === 'modalMother') {
+      displayElement = document.getElementById('modalMotherDisplay');
+      container = document.getElementById('modalMotherContainer');
+    } else if (fieldId === 'modalFatherSelect') {
+      displayElement = document.getElementById('modalFatherDisplay');
+      container = document.getElementById('modalFatherContainer');
+    } else if (fieldId === 'modalSpouse') {
+      displayElement = document.getElementById('modalSpouseDisplay');
+      container = document.getElementById('modalSpouseContainer');
+    }
+    
+    if (!hiddenInput || !displayElement || !container) {
+      console.error(`Searchable select elements not found for ${fieldId}`);
+      console.log('hiddenInput:', hiddenInput);
+      console.log('displayElement:', displayElement);
+      console.log('container:', container);
+      return;
+    }
+
+    console.log(`Setting up searchable select for ${fieldId}`);
+
+    const dropdown = container.querySelector('.select-dropdown');
+    const dropdownSearch = dropdown.querySelector('.dropdown-search');
+    const optionsContainer = dropdown.querySelector('.select-options');
+
+    // Open/close dropdown
+    displayElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAllSearchableSelects();
+      container.classList.add('open');
+      populateSearchableSelect(fieldId, genderFilter);
+      // Focus on search after a small delay to ensure dropdown is visible
+      setTimeout(() => {
+        dropdownSearch.focus();
+      }, 50);
+    });
+
+    // Handle dropdown search
+    dropdownSearch.addEventListener('input', (e) => {
+      filterSearchableOptions(optionsContainer, e.target.value);
+    });
+
+    // Handle option selection
+    optionsContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('select-option')) {
+        const value = e.target.getAttribute('data-value');
+        const text = e.target.querySelector('.option-text')?.textContent || e.target.textContent;
+        
+        hiddenInput.value = value;
+        
+        // Update display
+        const textSpan = displayElement.querySelector('.select-text');
+        if (textSpan) {
+          textSpan.textContent = text;
+          textSpan.classList.toggle('placeholder', !value);
+        }
+        
+        // Update selection visual state
+        optionsContainer.querySelectorAll('.select-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        e.target.classList.add('selected');
+        
+        container.classList.remove('open');
+        console.log(`Selected ${fieldId}:`, value, text);
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!container.contains(e.target)) {
+        container.classList.remove('open');
+      }
+    });
+
+    // Prevent dropdown from closing when clicking inside it
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  function closeAllSearchableSelects() {
+    document.querySelectorAll('.searchable-select').forEach(select => {
+      select.classList.remove('open');
+    });
+  }
+
+  function populateSearchableSelect(fieldId, genderFilter) {
+    let container;
+    
+    // Handle different field naming patterns
+    if (fieldId === 'modalMother') {
+      container = document.getElementById('modalMotherContainer');
+    } else if (fieldId === 'modalFatherSelect') {
+      container = document.getElementById('modalFatherContainer');
+    } else if (fieldId === 'modalSpouse') {
+      container = document.getElementById('modalSpouseContainer');
+    }
+    
+    if (!container) {
+      console.error(`Container not found for ${fieldId}`);
+      return;
+    }
+    
+    const optionsContainer = container.querySelector('.select-options');
+    const dropdownSearch = container.querySelector('.dropdown-search');
+    
+    // Clear existing options except the "No X Selected" option
+    const noSelectionOption = optionsContainer.querySelector('[data-value=""]');
+    optionsContainer.innerHTML = '';
+    if (noSelectionOption) {
+      optionsContainer.appendChild(noSelectionOption);
+    } else {
+      // Create default option if it doesn't exist
+      const defaultOption = document.createElement('div');
+      defaultOption.className = 'select-option';
+      defaultOption.setAttribute('data-value', '');
+      if (fieldId.includes('Mother')) {
+        defaultOption.textContent = 'No Mother Selected';
+      } else if (fieldId.includes('Father')) {
+        defaultOption.textContent = 'No Father Selected';
+      } else if (fieldId.includes('Spouse')) {
+        defaultOption.textContent = 'No Spouse Selected';
+      }
+      optionsContainer.appendChild(defaultOption);
+    }
+
+    // Get all people and create options
+    const people = [];
+    svg.querySelectorAll('g[data-id]').forEach(g => {
+      const name = g.getAttribute('data-name') || '';
+      const surname = g.getAttribute('data-surname') || '';
+      const gender = g.getAttribute('data-gender') || '';
+      const id = g.getAttribute('data-id');
+      
+      // Filter by gender if specified
+      if (genderFilter !== 'all') {
+        if (genderFilter === 'female' && gender !== 'female') return;
+        if (genderFilter === 'male' && gender !== 'male') return;
+      }
+      
+      const displayName = [name, surname].filter(Boolean).join(' ');
+      if (displayName.trim()) {
+        people.push({ id, name: displayName, gender });
+      }
+    });
+
+    // Sort alphabetically by name
+    people.sort((a, b) => a.name.localeCompare(b.name));
+
+    console.log(`Populating ${fieldId} with ${people.length} people (filter: ${genderFilter})`);
+
+    // Add options to dropdown
+    people.forEach(person => {
+      const option = document.createElement('div');
+      option.className = 'select-option';
+      option.setAttribute('data-value', person.id);
+      
+      // Create option content with name and gender indicator
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'option-text';
+      nameSpan.textContent = person.name;
+      
+      const genderSpan = document.createElement('span');
+      genderSpan.className = `gender-indicator gender-${person.gender}`;
+      genderSpan.textContent = `(${person.gender})`;
+      
+      option.appendChild(nameSpan);
+      option.appendChild(genderSpan);
+      
+      optionsContainer.appendChild(option);
+    });
+
+    // Clear search
+    dropdownSearch.value = '';
+    filterSearchableOptions(optionsContainer, '');
+  }
+
+  function setSearchableSelectValue(fieldId, value) {
+    const hiddenInput = document.getElementById(fieldId);
+    let displayElement;
+    
+    // Handle different field naming patterns
+    if (fieldId === 'modalMother') {
+      displayElement = document.getElementById('modalMotherDisplay');
+    } else if (fieldId === 'modalFatherSelect') {
+      displayElement = document.getElementById('modalFatherDisplay');
+    } else if (fieldId === 'modalSpouse') {
+      displayElement = document.getElementById('modalSpouseDisplay');
+    }
+    
+    if (!hiddenInput || !displayElement) {
+      console.error(`Elements not found for setSearchableSelectValue: ${fieldId}`);
+      return;
+    }
+    
+    hiddenInput.value = value;
+    const textSpan = displayElement.querySelector('.select-text');
+    
+    if (value) {
+      // Find the person's name
+      const g = svg.querySelector(`g[data-id="${value}"]`);
+      if (g) {
+        const name = g.getAttribute('data-name') || '';
+        const surname = g.getAttribute('data-surname') || '';
+        const displayName = [name, surname].filter(Boolean).join(' ');
+        if (textSpan) {
+          textSpan.textContent = displayName;
+          textSpan.classList.remove('placeholder');
+        }
+        console.log(`Set ${fieldId} to: ${displayName} (${value})`);
+      }
+    } else {
+      // Set to default text based on field type
+      if (textSpan) {
+        if (fieldId.includes('Mother')) {
+          textSpan.textContent = 'No Mother Selected';
+        } else if (fieldId.includes('Father')) {
+          textSpan.textContent = 'No Father Selected';
+        } else if (fieldId.includes('Spouse')) {
+          textSpan.textContent = 'No Spouse Selected';
+        }
+        textSpan.classList.add('placeholder');
+      }
+    }
+  }
+
+  function filterSearchableOptions(optionsContainer, searchTerm) {
+    const options = optionsContainer.querySelectorAll('.select-option');
+    const term = searchTerm.toLowerCase();
+    
+    options.forEach(option => {
+      const nameText = option.querySelector('.option-text')?.textContent.toLowerCase() || option.textContent.toLowerCase();
+      if (nameText.includes(term)) {
+        option.classList.remove('hidden');
+      } else {
+        option.classList.add('hidden');
       }
     });
   }
@@ -331,9 +623,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Helper function to populate parent and spouse dropdowns
   function populateParentAndSpouseDropdowns() {
-    const mothers = modalMother;
-    const fathers = modalFatherSelect;
-    const spouses = modalSpouse;
+    // Check if we have new searchable selects or old regular selects
+    const hasSearchableSelects = document.getElementById('modalMotherContainer') && 
+                                  document.getElementById('modalFatherContainer') && 
+                                  document.getElementById('modalSpouseContainer');
+    
+    if (hasSearchableSelects) {
+      // Update searchable selects when modal opens
+      console.log('Modal opened - using searchable selects');
+    } else {
+      // Fallback to old select population
+      console.log('Modal opened - using regular selects');
+      populateRegularSelects();
+    }
+  }
+
+  // Fallback function for regular select elements
+  function populateRegularSelects() {
+    const mothers = document.getElementById('modalMother');
+    const fathers = document.getElementById('modalFatherSelect');
+    const spouses = document.getElementById('modalSpouse');
+    
+    if (!mothers || !fathers || !spouses) {
+      console.error('Regular select elements not found');
+      return;
+    }
     
     // Clear existing options (except the first "Select" option)
     mothers.innerHTML = '<option value="">Select Mother</option>';
@@ -341,6 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
     spouses.innerHTML = '<option value="">Select Spouse</option>';
     
     // Get all people and populate dropdowns based on gender
+    const people = [];
     svg.querySelectorAll('g[data-id]').forEach(g => {
       const name = g.getAttribute('data-name');
       const surname = g.getAttribute('data-surname');
@@ -348,27 +663,36 @@ document.addEventListener('DOMContentLoaded', function() {
       const id = g.getAttribute('data-id');
       
       const displayName = [name, surname].filter(Boolean).join(' ');
-      
+      if (displayName) {
+        people.push({ id, name: displayName, gender });
+      }
+    });
+
+    // Sort alphabetically
+    people.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Populate dropdowns
+    people.forEach(person => {
       // Populate mothers (females only)
-      if (gender === 'female') {
+      if (person.gender === 'female') {
         const option = document.createElement('option');
-        option.value = id;
-        option.textContent = displayName;
+        option.value = person.id;
+        option.textContent = person.name;
         mothers.appendChild(option);
       }
       
       // Populate fathers (males only)
-      if (gender === 'male') {
+      if (person.gender === 'male') {
         const option = document.createElement('option');
-        option.value = id;
-        option.textContent = displayName;
+        option.value = person.id;
+        option.textContent = person.name;
         fathers.appendChild(option);
       }
       
       // Populate spouses (all people)
       const spouseOption = document.createElement('option');
-      spouseOption.value = id;
-      spouseOption.textContent = displayName;
+      spouseOption.value = person.id;
+      spouseOption.textContent = person.name;
       spouses.appendChild(spouseOption);
     });
   }
@@ -396,9 +720,25 @@ document.addEventListener('DOMContentLoaded', function() {
     modalGender.value = g.getAttribute('data-gender') || '';
     
     populateParentAndSpouseDropdowns();
-    modalMother.value = g.getAttribute('data-mother-id') || '';
-    modalFatherSelect.value = g.getAttribute('data-father-id') || '';
-    modalSpouse.value = g.getAttribute('data-spouse-id') || '';
+    
+    // Check if we have searchable selects or regular selects
+    const hasSearchableSelects = document.getElementById('modalMotherContainer');
+    
+    if (hasSearchableSelects) {
+      // Set searchable select values
+      setSearchableSelectValue('modalMother', g.getAttribute('data-mother-id') || '');
+      setSearchableSelectValue('modalFatherSelect', g.getAttribute('data-father-id') || '');
+      setSearchableSelectValue('modalSpouse', g.getAttribute('data-spouse-id') || '');
+    } else {
+      // Set regular select values
+      const motherSelect = document.getElementById('modalMother');
+      const fatherSelect = document.getElementById('modalFatherSelect');
+      const spouseSelect = document.getElementById('modalSpouse');
+      
+      if (motherSelect) motherSelect.value = g.getAttribute('data-mother-id') || '';
+      if (fatherSelect) fatherSelect.value = g.getAttribute('data-father-id') || '';
+      if (spouseSelect) spouseSelect.value = g.getAttribute('data-spouse-id') || '';
+    }
     
     personModal.style.display = 'flex';
   }
