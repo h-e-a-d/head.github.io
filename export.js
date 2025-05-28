@@ -75,6 +75,16 @@
           stroke: #e74c3c;
           stroke-width: 4;
         }
+        
+        line.relation.spouse {
+          stroke: #e74c3c;
+          stroke-dasharray: 5,5;
+        }
+        
+        line.relation.spouse:hover {
+          stroke: #c0392b;
+          stroke-width: 4;
+        }
       `;
       
       // Handle font embedding for custom fonts

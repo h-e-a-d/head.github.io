@@ -1,4 +1,4 @@
-/* style.css - Updated with font color support */
+/* style.css - Updated with font color support and DOB formatting */
 
 /* ————— Load Ardeco from TTF in same folder ————— */
 @font-face {
@@ -35,6 +35,7 @@ body {
 
 #controls input[type="number"],
 #controls input[type="color"],
+#controls input[type="text"],
 #controls button,
 #controls input[type="file"],
 #controls select {
@@ -65,9 +66,234 @@ body {
   min-width: 120px;
 }
 
+/* People counter styling */
+.counter-display {
+  background-color: #34495e;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* ————— View Toggle Switch ————— */
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 120px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #3498db;
+  border-radius: 16px;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #27ae60;
+}
+
+.toggle-label {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+  z-index: 2;
+  transition: all 0.3s ease;
+  padding: 6px 4px;
+  border-radius: 14px;
+}
+
+.toggle-switch input:not(:checked) + .slider .toggle-label.graphic {
+  background-color: white;
+  color: #3498db;
+}
+
+.toggle-switch input:checked + .slider .toggle-label.table {
+  background-color: white;
+  color: #27ae60;
+}
+
+/* ————— View Containers ————— */
+.view-container {
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+#graphicView {
+  height: calc(100vh - 56px);
+}
+
+#tableView {
+  height: calc(100vh - 56px);
+  background: white;
+}
+
+.table-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.table-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.search-input, .sort-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+}
+
+.search-input {
+  flex: 1;
+  max-width: 300px;
+}
+
+.sort-select {
+  min-width: 160px;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* ————— Table Styling ————— */
+#familyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+  background: white;
+}
+
+#familyTable th {
+  background-color: #34495e;
+  color: white;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid #2c3e50;
+}
+
+#familyTable td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #ecf0f1;
+  vertical-align: top;
+}
+
+#familyTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+#familyTable tbody tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
+#familyTable tbody tr:nth-child(even):hover {
+  background-color: #e8e8e8;
+}
+
+.table-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.table-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+}
+
+.edit-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #2980b9;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+.gender-male {
+  color: #3498db;
+  font-weight: bold;
+}
+
+.gender-female {
+  color: #e91e63;
+  font-weight: bold;
+}
+
+/* DOB input styling */
+#modalDob {
+  position: relative;
+}
+
+#modalDob::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.dob-help {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+  font-style: italic;
+}
+
 #svgArea {
   width: 100%;
-  height: calc(100vh - 56px);
+  height: 100%;
   background: #f0f0f0;
   touch-action: none;
   user-select: none;
@@ -116,6 +342,17 @@ line.relation:hover {
   stroke-width: 4;
 }
 
+/* Spouse relationship lines */
+line.relation.spouse {
+  stroke: #e74c3c;
+  stroke-dasharray: 5,5;
+}
+
+line.relation.spouse:hover {
+  stroke: #c0392b;
+  stroke-width: 4;
+}
+
 /* ————— Button Styling ————— */
 button {
   background-color: #3498db;
@@ -155,6 +392,14 @@ button:disabled {
 
 #centerBtn:hover {
   background-color: #27ae60;
+}
+
+#generateConnectionsBtn {
+  background-color: #f39c12;
+}
+
+#generateConnectionsBtn:hover {
+  background-color: #e67e22;
 }
 
 #saveBtn {
@@ -302,6 +547,14 @@ button:disabled {
     grid-column: 1 / -1; 
   }
   
+  #graphicView {
+    height: calc(100vh - 80px);
+  }
+  
+  #tableView {
+    height: calc(100vh - 80px);
+  }
+  
   circle.person { 
     stroke-width: 3px; 
   }
@@ -327,6 +580,33 @@ button:disabled {
     padding: 16px;
   }
   
+  .table-container {
+    padding: 8px;
+  }
+  
+  .table-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .search-input {
+    max-width: 100%;
+  }
+  
+  #familyTable {
+    font-size: 12px;
+  }
+  
+  #familyTable th,
+  #familyTable td {
+    padding: 6px 4px;
+  }
+  
+  .table-btn {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
   .modal-content input,
   .modal-content select {
     padding: 6px;

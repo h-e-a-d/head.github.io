@@ -22,7 +22,21 @@
   <div id="controls">
     <button id="addPersonBtn">Add Person</button>
     <button id="connectBtn">Connect</button>
+    <button id="generateConnectionsBtn" title="Generate family connections automatically">Generate Connections</button>
     <button id="centerBtn">Center</button>
+    <div id="peopleCounter" class="counter-display">People: 0</div>
+    
+    <!-- View Toggle Switch -->
+    <div class="view-toggle">
+      <label class="toggle-switch">
+        <input type="checkbox" id="viewModeToggle">
+        <span class="slider">
+          <span class="toggle-label graphic">Graphic</span>
+          <span class="toggle-label table">Table</span>
+        </span>
+      </label>
+    </div>
+    
     <label>
       Color:
       <input type="color" id="colorPicker" disabled>
@@ -94,7 +108,46 @@
     </label>
   </div>
 
-  <svg id="svgArea" xmlns="http://www.w3.org/2000/svg"></svg>
+  <!-- Graphic View (SVG) -->
+  <div id="graphicView" class="view-container">
+    <svg id="svgArea" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <!-- Table View -->
+  <div id="tableView" class="view-container" style="display: none;">
+    <div class="table-container">
+      <div class="table-controls">
+        <input type="text" id="tableSearch" placeholder="Search people..." class="search-input">
+        <select id="tableSortBy" class="sort-select">
+          <option value="name">Sort by Name</option>
+          <option value="surname">Sort by Surname</option>
+          <option value="dob">Sort by Date of Birth</option>
+          <option value="gender">Sort by Gender</option>
+        </select>
+      </div>
+      <div class="table-wrapper">
+        <table id="familyTable">
+          <thead>
+            <tr>
+              <th>Given Name</th>
+              <th>Father's Name</th>
+              <th>Surname</th>
+              <th>Birth Name</th>
+              <th>Date of Birth</th>
+              <th>Gender</th>
+              <th>Mother</th>
+              <th>Father</th>
+              <th>Spouse</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="familyTableBody">
+            <!-- Table rows will be populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <!-- Person Modal -->
   <div id="personModal" class="modal">
@@ -115,7 +168,8 @@
         </label>
         <label>
           DOB:
-          <input type="date" id="modalDob">
+          <input type="text" id="modalDob" placeholder="dd.mm.yyyy or yyyy" maxlength="10">
+          <div class="dob-help">Enter full date (dd.mm.yyyy) or just year (yyyy)</div>
         </label>
         <label>
           Birth Name:
@@ -139,6 +193,12 @@
           Father:
           <select id="modalFatherSelect">
             <option value="">Select Father</option>
+          </select>
+        </label>
+        <label>
+          Spouse:
+          <select id="modalSpouse">
+            <option value="">Select Spouse</option>
           </select>
         </label>
         <div class="modal-buttons">
@@ -266,6 +326,82 @@
         }
       });
     };
+
+    // DOB Input validation and formatting
+    function setupDOBInput() {
+      const dobInput = document.getElementById('modalDob');
+      if (!dobInput) return;
+
+      // Validate DOB format
+      function validateDOB(value) {
+        if (!value) return true; // Empty is OK
+        
+        // Allow just year (4 digits)
+        if (/^\d{4}$/.test(value)) {
+          const year = parseInt(value);
+          const currentYear = new Date().getFullYear();
+          return year >= 1800 && year <= currentYear + 50;
+        }
+        
+        // Allow full date dd.mm.yyyy
+        if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(value)) {
+          const parts = value.split('.');
+          const day = parseInt(parts[0]);
+          const month = parseInt(parts[1]);
+          const year = parseInt(parts[2]);
+          
+          // Basic validation
+          const currentYear = new Date().getFullYear();
+          if (year < 1800 || year > currentYear + 50) return false;
+          if (month < 1 || month > 12) return false;
+          if (day < 1 || day > 31) return false;
+          
+          // Check if date is valid
+          const date = new Date(year, month - 1, day);
+          return date.getFullYear() === year && 
+                 date.getMonth() === month - 1 && 
+                 date.getDate() === day;
+        }
+        
+        return false;
+      }
+
+      // Format input as user types
+      dobInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^\d.]/g, ''); // Remove non-digits and non-dots
+        
+        // If it's just digits and length is appropriate for date, auto-format
+        if (/^\d+$/.test(value) && value.length > 4) {
+          // Auto-add dots for date formatting
+          if (value.length >= 2 && value.length <= 4) {
+            value = value.substring(0, 2) + '.' + value.substring(2);
+          } else if (value.length >= 4 && value.length <= 8) {
+            value = value.substring(0, 2) + '.' + value.substring(2, 4) + '.' + value.substring(4);
+          }
+        }
+        
+        e.target.value = value;
+        
+        // Visual feedback for validation
+        if (value && !validateDOB(value)) {
+          e.target.style.borderColor = '#e74c3c';
+        } else {
+          e.target.style.borderColor = '#ddd';
+        }
+      });
+
+      // Validation on blur
+      dobInput.addEventListener('blur', function(e) {
+        const value = e.target.value.trim();
+        if (value && !validateDOB(value)) {
+          showMessage('Please enter a valid date in format dd.mm.yyyy or just the year (yyyy)', 'error');
+          e.target.focus();
+        }
+      });
+    }
+
+    // Initialize DOB input when DOM is ready
+    document.addEventListener('DOMContentLoaded', setupDOBInput);
   </script>
 
   <!-- Load main application script -->
