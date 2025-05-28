@@ -1,4 +1,4 @@
-/* style.css */
+/* style.css - Updated with font color support */
 
 /* ————— Load Ardeco from TTF in same folder ————— */
 @font-face {
@@ -12,7 +12,7 @@
 /* ————— Base Styles ————— */
 body {
   margin: 0;
-  font-family: 'Ardeco', Arial, sans-serif;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
   overscroll-behavior: none;
 }
 
@@ -30,7 +30,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: 'Ardeco', Arial, sans-serif;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
 }
 
 #controls input[type="number"],
@@ -40,11 +40,29 @@ body {
 #controls select {
   padding: 6px 8px;
   font-size: 14px;
-  font-family: 'Ardeco', Arial, sans-serif;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
 }
 
 #controls input[type="number"] {
   width: 60px;
+}
+
+/* Style for color pickers */
+#controls input[type="color"] {
+  width: 40px;
+  height: 32px;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#controls input[type="color"]:hover {
+  border-color: #3498db;
+}
+
+#controls select {
+  min-width: 120px;
 }
 
 #svgArea {
@@ -55,7 +73,6 @@ body {
   user-select: none;
 }
 
-/* ————— Person Node Styling ————— */
 circle.person {
   cursor: grab;
   transition: stroke-width 0.2s ease;
@@ -67,9 +84,9 @@ circle.person.selected {
   stroke-width: 4px !important;
 }
 
-/* ————— Text Styling ————— */
+/* ————— Text Styling (Default values - will be overridden by dynamic CSS) ————— */
 text {
-  font-family: 'Ardeco', sans-serif;
+  font-family: 'Ardeco', Inter, sans-serif;
   font-size: 12px;
   pointer-events: none;
   user-select: none;
@@ -77,12 +94,12 @@ text {
 
 text.name {
   font-weight: bold;
-  fill: #333;
+  fill: #333; /* Default name color */
 }
 
 text.dob {
   font-size: 10px;
-  fill: #666;
+  fill: #666; /* Default date color */
 }
 
 /* ————— Connector Lines ————— */
@@ -107,7 +124,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
-  font-family: 'Ardeco', Arial, sans-serif;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
 }
 
 button:hover {
@@ -117,6 +134,15 @@ button:hover {
 button:disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
+}
+
+/* Export button styling */
+#exportSvgBtn, #exportPngBtn, #exportPdfBtn {
+  background-color: #27ae60;
+}
+
+#exportSvgBtn:hover, #exportPngBtn:hover, #exportPdfBtn:hover {
+  background-color: #219a52;
 }
 
 #connectBtn.active {
@@ -139,12 +165,107 @@ button:disabled {
   background-color: #8e44ad;
 }
 
+/* ————— Message Styling ————— */
+.error-message {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px;
+  margin: 4px;
+  border-radius: 4px;
+  display: none;
+}
+
+.success-message {
+  background-color: #27ae60;
+  color: white;
+  padding: 8px;
+  margin: 4px;
+  border-radius: 4px;
+  display: none;
+}
+
+/* ————— Modal Styles ————— */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  max-width: 90%;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-family: 'Ardeco', Inter, Arial, sans-serif;
+}
+
+#modalCancel {
+  background-color: #95a5a6;
+}
+
+#modalCancel:hover {
+  background-color: #7f8c8d;
+}
+
 /* ————— Mobile View: 2-Column Grid ————— */
 @media (max-width: 600px) {
   html, body {
     width: 100%;
     overflow-x: hidden;
   }
+  
   #controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -153,6 +274,7 @@ button:disabled {
     width: 100%;
     box-sizing: border-box;
   }
+  
   #controls > * {
     box-sizing: border-box;
     min-width: 0;
@@ -161,13 +283,92 @@ button:disabled {
     padding: 6px 4px;
     font-size: 14px;
   }
-  #controls label { gap: 2px; }
-  #controls input[type="number"] { width: 50px; }
-  #controls input[type="color"] { padding: 4px; }
-  #controls > .full-span { grid-column: 1 / -1; }
-  circle.person { stroke-width: 3px; }
-  text { font-size: 12px; }
-  text.dob { font-size: 10px; }
-  line.relation { stroke-width: 3px; }
-  line.relation:hover { stroke-width: 5px; }
+  
+  #controls label { 
+    gap: 2px; 
+  }
+  
+  #controls input[type="number"] { 
+    width: 50px; 
+  }
+  
+  #controls input[type="color"] { 
+    width: 30px;
+    height: 28px;
+    padding: 2px; 
+  }
+  
+  #controls > .full-span { 
+    grid-column: 1 / -1; 
+  }
+  
+  circle.person { 
+    stroke-width: 3px; 
+  }
+  
+  text { 
+    font-size: 12px; 
+  }
+  
+  text.dob { 
+    font-size: 10px; 
+  }
+  
+  line.relation { 
+    stroke-width: 3px; 
+  }
+  
+  line.relation:hover { 
+    stroke-width: 5px; 
+  }
+
+  .modal-content {
+    width: 280px;
+    padding: 16px;
+  }
+  
+  .modal-content input,
+  .modal-content select {
+    padding: 6px;
+  }
+}
+
+/* ————— Font Preview Styles ————— */
+.font-preview {
+  font-size: 14px;
+  padding: 2px 0;
+}
+
+/* ————— Color Picker Labels for Better UX ————— */
+label[for="nameColorPicker"],
+label[for="dateColorPicker"] {
+  position: relative;
+}
+
+label[for="nameColorPicker"]:hover::after {
+  content: "Choose color for person names";
+  position: absolute;
+  bottom: -25px;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+label[for="dateColorPicker"]:hover::after {
+  content: "Choose color for birth dates";
+  position: absolute;
+  bottom: -25px;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
 }

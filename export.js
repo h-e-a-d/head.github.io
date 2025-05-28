@@ -1,19 +1,23 @@
-// export.js - Fixed version with dynamic font support
+// export.js - Updated with font color support
 (async () => {
-  // 1) Get current font settings from the application
+  // 1) Get current font settings from the application including colors
   function getCurrentFontSettings() {
     const fontSelect = document.getElementById('fontSelect');
     const fontSizeInput = document.getElementById('fontSizeInput');
+    const nameColorPicker = document.getElementById('nameColorPicker');
+    const dateColorPicker = document.getElementById('dateColorPicker');
     
     return {
       fontFamily: fontSelect ? fontSelect.value : 'Arial, sans-serif',
-      fontSize: fontSizeInput ? parseInt(fontSizeInput.value) || 12 : 12
+      fontSize: fontSizeInput ? parseInt(fontSizeInput.value) || 12 : 12,
+      nameColor: nameColorPicker ? nameColorPicker.value : '#333333',
+      dateColor: dateColorPicker ? dateColorPicker.value : '#666666'
     };
   }
 
-  // 2) Generate CSS with current font settings
+  // 2) Generate CSS with current font settings and colors
   async function getExportCSS() {
-    const { fontFamily, fontSize } = getCurrentFontSettings();
+    const { fontFamily, fontSize, nameColor, dateColor } = getCurrentFontSettings();
     
     try {
       // Try to get base CSS from the link element
@@ -29,7 +33,7 @@
         }
       }
       
-      // Create comprehensive CSS with current font settings
+      // Create comprehensive CSS with current font settings and colors
       const exportCSS = `
         /* Base styles */
         text {
@@ -43,13 +47,13 @@
           font-family: ${fontFamily};
           font-size: ${fontSize}px;
           font-weight: bold;
-          fill: #333;
+          fill: ${nameColor};
         }
         
         text.dob {
           font-family: ${fontFamily};
           font-size: ${Math.max(6, fontSize - 2)}px;
-          fill: #666;
+          fill: ${dateColor};
         }
         
         circle.person {
@@ -118,17 +122,17 @@
       
     } catch (err) {
       console.warn('Failed to generate export CSS:', err);
-      // Return minimal fallback CSS with current font settings
+      // Return minimal fallback CSS with current font settings and colors
       return `
         text { 
           font-family: ${fontFamily.includes('Inter') ? fontFamily : 'Inter, ' + fontFamily}; 
           font-size: ${fontSize}px; 
-          fill: #333; 
+          fill: ${nameColor}; 
         }
         text.dob { 
           font-family: ${fontFamily.includes('Inter') ? fontFamily : 'Inter, ' + fontFamily}; 
           font-size: ${Math.max(6, fontSize - 2)}px; 
-          fill: #666; 
+          fill: ${dateColor}; 
         }
         circle.person { stroke: none; }
         line.relation { stroke: #555; stroke-width: 3; }
@@ -174,9 +178,9 @@
     };
   }
 
-  // 3) Apply current font settings to cloned SVG text elements
+  // 3) Apply current font settings to cloned SVG text elements including colors
   function applyCurrentFontsToClone(clonedSvg) {
-    const { fontFamily, fontSize } = getCurrentFontSettings();
+    const { fontFamily, fontSize, nameColor, dateColor } = getCurrentFontSettings();
     
     // Update all text elements in the clone to match current settings
     clonedSvg.querySelectorAll('text').forEach(textEl => {
@@ -184,8 +188,10 @@
       
       if (textEl.classList.contains('dob')) {
         textEl.setAttribute('font-size', Math.max(6, fontSize - 2));
+        textEl.setAttribute('fill', dateColor);
       } else {
         textEl.setAttribute('font-size', fontSize);
+        textEl.setAttribute('fill', nameColor);
       }
     });
   }
@@ -223,7 +229,7 @@
       clonedSvg.setAttribute('width', bounds.w);
       clonedSvg.setAttribute('height', bounds.h);
       
-      // Add CSS styles with current font settings
+      // Add CSS styles with current font settings and colors
       const css = await getExportCSS();
       const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
       const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
@@ -274,7 +280,7 @@
           if (blob) {
             download('family-tree.png', blob);
             if (window.showMessage) {
-              window.showMessage('PNG exported successfully with current font settings!', 'success');
+              window.showMessage('PNG exported successfully with current font settings and colors!', 'success');
             }
           } else {
             alert('Failed to create PNG');
@@ -308,7 +314,7 @@
         pdf.save('family-tree.pdf');
         
         if (window.showMessage) {
-          window.showMessage('PDF exported successfully with current font settings!', 'success');
+          window.showMessage('PDF exported successfully with current font settings and colors!', 'success');
         }
       }
 
@@ -363,7 +369,19 @@
           content: t.textContent,
           fontFamily: t.getAttribute('font-family'),
           fontSize: t.getAttribute('font-size'),
+          fill: t.getAttribute('fill'),
           class: t.getAttribute('class')
+        });
+      }
+    });
+    console.log('Sample person elements:');
+    svg.querySelectorAll('circle.person').forEach((c, i) => {
+      if (i < 3) { // Show first 3 person elements
+        console.log(`  Person ${i + 1}:`, {
+          id: c._group?.getAttribute('data-id'),
+          gender: c._group?.getAttribute('data-gender'),
+          fill: c.getAttribute('fill'),
+          class: c.getAttribute('class')
         });
       }
     });
